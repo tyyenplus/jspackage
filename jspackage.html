@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>js封装</title>
+	<style>
+		#page {
+			width: 100px;
+			height: 100px;
+			background: blue;
+		}
+	</style>
+</head>
+<body>
+
+	<div id="page" class="page aa bb"></div>
+
+	<script type="text/javascript">
+		// 扩展字符串String对象方法
+		// 去掉首尾空格
+		String.prototype.trim = function() {
+			return this.replace(/(^\s*)|(\s*$)/g,"");
+		}
+		// 扩展数组Array对象方法
+		// 获取最大的数
+		Array.prototype.getMax = function(){
+			if(this.length <= 1) return this;
+			var num = Number(this[0]);
+			for(var i = 1, len = this.length; i < len; i++) {
+				if(Number(this[i]) > num) {
+					num = this[i];
+				}
+			}
+			return num;
+		}
+		// 获取最小的数
+		Array.prototype.getMin = function() {
+			if(this.length <= 1) return this;
+			var num = Number(this[0]);
+			for(var i = 1, len = this.length; i < len; i++) {
+				if(Number(this[i]) < num) {
+					num = this[i];
+				}
+			}
+			return num;
+		}
+		// 将数组元素从大到小进行排序
+		Array.prototype.MaxtoMin = function() {
+			var num;
+			if(this.length <= 0) { return this; }
+			for(var i = 0,len = this.length; i < len; i++) {
+				for(var j = 0; j < i; j++) {
+					if(this[i] > this[j]) {
+						num = this[i];
+						this[i] = this[j];
+						this[j] = num;
+					}
+				}
+			}
+			return this;
+		}
+		// 将数组元素从小到大进行排序
+		Array.prototype.MintoMax = function() {
+			var num;
+			if(this.length <= 0) { return this; }
+			for(var i = 0,len = this.length; i < len; i++) {
+				for(var j = 0; j < i; j++) {
+					if(this[i] < this[j]) {
+						num = this[i];
+						this[i] = this[j];
+						this[j] = num;
+					}
+				}
+			}
+			return this;
+		}
+
+		// 为dom元素添加类
+		function addClass(obj,clsName) {
+			var cur = obj.className;
+			var clsArr = clsName.split(' ');
+			for(var i = 0, len = clsArr.length; i < len; i++) {
+				if(!(cur.indexOf(clsArr[i]) > -1)) {
+					cur += ' ' + clsArr[i];
+				}
+			}
+			obj.className = cur;
+			return obj;
+		}
+		// 移除dom元素的类
+		function removeClass(obj,clsName) {
+			var curArr = obj.className.split(' ');
+			var clsArr = clsName.split(' ');
+			var clsobj = {};
+			var newCls = '';
+			for(var i = 0, len = curArr.length; i < len; i++) {
+				clsobj[curArr[i]] = curArr[i];
+			}
+			for(var i = 0, len = clsArr.length; i < len; i++) {
+				if(clsobj[clsArr[i]]) {
+					clsobj[clsArr[i]] = '';
+				}
+			}
+			for(var i in clsobj) {
+				if(clsobj[i]) {
+					newCls += ' ' + clsobj[i];
+				}
+			}
+			obj.className = newCls.trim();
+			return obj;
+		}
+		// 判断dom元素是否有该类名
+		function hasClass(obj,clsName) {
+			var cur = obj.className;
+			if(cur.indexOf(clsName) > -1) {
+				return true;
+			}
+			return false;
+		}
+		// 获取元素、id为#+名、class为.+名
+		function getEle(str) {
+			var tag = str.substr(0,1);
+			var elename = str.substring(1);
+			if(tag == '#') {
+				return document.getElementById(elename);
+			} else if(tag == '.') {
+				if(document.querySelectorAll) {
+					return document.querySelectorAll(str);
+				} else {
+					var newEle = [];
+					var ele = document.getElementsByTagName('*');
+					// console.log(ele)
+					for(var i = 0, len = ele.length; i < len; i++) {
+						if(ele[i].className.indexOf(elename) > -1) {
+							newEle.push(ele[i]);
+						}
+					}
+					return newEle;
+				}
+			} else {
+				throw new Error('please first name is "." or "#"');
+			}
+		}
+		// 合并对象
+		// function extend(obj,newobj,override) {
+		//     for(var key in newobj){
+		//         if(newobj.hasOwnProperty(key) && (!obj.hasOwnProperty(key) || override)){
+		//             obj[key]=newobj[key];
+		//         }
+		//     }
+		//     return obj;
+		// }
+
+		// 扩展document对象的getElementsByClass方法，通过class查找dom
+        if(!('getElementsByClass' in HTMLElement)){
+            HTMLElement.prototype.getElementsByClass = function(n){
+                var el = [],
+                    _el = this.getElementsByTagName('*');
+                for (var i=0; i<_el.length; i++ ) {
+                    if (!!_el[i].className && (typeof _el[i].className == 'string') && _el[i].className.indexOf(n) > -1 ) {
+                        el.push(_el[i]);
+                    }
+                }
+                return el;
+            };
+            ((typeof HTMLDocument !== 'undefined') ? HTMLDocument : Document).prototype.getElementsByClass = HTMLElement.prototype.getElementsByClass;
+        }
+
+		;(function(win,doc) {
+			var _global;
+			// 扩展document对象的getElementsByClass方法，通过class查找dom
+	        if(!('getElementsByClass' in HTMLElement)){
+	            HTMLElement.prototype.getElementsByClass = function(n){
+	                var el = [],
+	                    _el = this.getElementsByTagName('*');
+	                for (var i=0; i<_el.length; i++ ) {
+	                    if (!!_el[i].className && (typeof _el[i].className == 'string') && _el[i].className.indexOf(n) > -1 ) {
+	                        el.push(_el[i]);
+	                    }
+	                }
+	                return el;
+	            };
+	            ((typeof HTMLDocument !== 'undefined') ? HTMLDocument : Document).prototype.getElementsByClass = HTMLElement.prototype.getElementsByClass;
+	        }
+			function isEmptyObject(e) {
+			    var t;
+			    for (t in e)
+			        return !1;
+			    return !0
+			}
+
+			var ChenJs = {
+				time: '2017-12-11',
+				// 合并对象
+				extend: function(obj,newobj) {
+				    for(var key in newobj){
+				        if(newobj.hasOwnProperty(key) && obj.hasOwnProperty(key)){
+				            obj[key]=newobj[key];
+				        }
+				    }
+				    return obj;
+				},
+				addClass: function (obj,clsName) {
+					var cur = obj.className;
+					var clsArr = clsName.split(' ');
+					for(var i = 0, len = clsArr.length; i < len; i++) {
+						if(!(cur.indexOf(clsArr[i]) > -1)) {
+							cur += ' ' + clsArr[i];
+						}
+					}
+					obj.className = cur;
+					return obj;
+				},
+				removeClass: function(obj,clsName) {
+					var curArr = obj.className.split(' ');
+					var clsArr = clsName.split(' ');
+					var clsobj = {};
+					var newCls = '';
+					for(var i = 0, len = curArr.length; i < len; i++) {
+						clsobj[curArr[i]] = curArr[i];
+					}
+					for(var i = 0, len = clsArr.length; i < len; i++) {
+						if(clsobj[clsArr[i]]) {
+							clsobj[clsArr[i]] = '';
+						}
+					}
+					for(var i in clsobj) {
+						if(clsobj[i]) {
+							newCls += ' ' + clsobj[i];
+						}
+					}
+					obj.className = newCls.trim();
+					return obj;
+				},
+				hasClass: function(obj,clsName) {
+					var cur = obj.className;
+					if(cur.indexOf(clsName) > -1) {
+						return true;
+					}
+					return false;
+				},
+				// 获取元素、id为#+名、class为.+名
+				getEle: function(str) {
+					var tag = str.substr(0,1);
+					var elename = str.substring(1);
+					if(tag == '#') {
+						return document.getElementById(elename);
+					} else if(tag == '.') {
+						if(document.querySelectorAll) {
+							return document.querySelectorAll(str);
+						} else {
+							var newEle = [];
+							var ele = document.getElementsByTagName('*');
+							// console.log(ele)
+							for(var i = 0, len = ele.length; i < len; i++) {
+								if(ele[i].className.indexOf(elename) > -1) {
+									newEle.push(ele[i]);
+								}
+							}
+							return newEle;
+						}
+					} else {
+						throw new Error('please first name is "." or "#"');
+					}
+				},
+				html: function(obj,html) {
+					if(html) {
+						obj.innerHTML = html;
+						return obj;
+					} else {
+						return obj.innerHTML;
+					}
+				},
+				text: function(obj,text) {
+					var doctext;
+					if(doc.textContent) {
+						doctext = obj.textContent;
+					} else {
+						doctext = obj.innerText;
+					}
+					if(text) {
+						doctext = text;
+					} else {
+						return doctext;
+					}
+					return obj;
+				},
+				_Event: {
+					addEvent: function(oTarget, oType, handler) {
+						if(window.addEventListener) {
+							oTarget.addEventListener(oType,function() {
+								handler();
+							},false);
+						} else if(window.attachEvent) {
+							oTarget.attachEvent('on' + oType, function() {
+								handler();
+							})
+						} else {
+							oTarget['on' + oType] = function() {
+								handler();
+							}
+						}
+					},
+					removeEvent: function(oTarget, oType, handler) {
+						if(window.removeEventListener) {
+							oTarget.removeEventListener(oType,function() {
+								handler();
+							},false);
+						} else if(window.detachEvent) {
+							oTarget.detachEvent('on' + oType, function() {
+								handler();
+							})
+						} else {
+							window['on' + oType] = null;
+						}
+					},
+					getTarge: function(ev) {
+						return ev.target || ev.srcElement;
+					}
+				},
+				ajax: function(obj) {
+					if(typeof obj != 'object' || !obj.url) {
+						throw new Error('please check the incoming parameters');
+					}
+					var defaults = {
+						url: '',
+						type: 'GET',
+						async: true,
+						timeout: 5000,
+						data: {},
+						dataType: 'json',
+						beforeSend: function() {},
+						beforeSuccess: function() {},
+						success: function(data) {
+							console.log(typeof data)
+						},
+						complete: function(data) {
+							console.log(data)
+						}
+					}
+					var opt = this.extend(defaults,obj);
+					console.log(opt)
+					// 拼接url
+					var params = [];
+					if(!isEmptyObject(opt.data) && typeof opt.data == 'object') {
+						opt.url += "?"
+						for(var i in opt.data) {
+							params.push(i + '=' + opt.data[i]);
+						}
+					}
+					var xmlhttp =  window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+					xmlhttp.onreadystatechange = function() {
+						if(xmlhttp.readyState < 2) {
+							opt.beforeSend();
+						} else if(xmlhttp.readyState == 3) {
+							opt.beforeSuccess();
+						} else if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+							if(opt.dataType && opt.dataType.toLocaleLowerCase() == 'json') {
+								opt.success.call(xmlhttp, eval("(" + xmlhttp.responseText + ")"));
+							} else if(opt.dataType && opt.dataType.toLocaleLowerCase() === "xml") {
+								opt.success.call(xmlhttp, xmlhttp.responseXML);
+							} else {
+								opt.success.call(xmlhttp, xmlhttp.responseText);
+							}
+							opt.complete(xmlhttp.responseText);
+						} else {
+							opt.complete(xmlhttp.responseText);
+						}
+					}
+					if(opt.type.toUpperCase() == 'POST') {
+						xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=utf-8');
+					} else {
+						opt.url += params.join('&');
+					}
+					xmlhttp.open(opt.type, opt.url, opt.async);
+					xmlhttp.send();
+				}
+			}
+
+			_global = (function(){ return this || (0, eval)('this'); }());
+		    !('ChenJs' in _global) && (_global.ChenJs = ChenJs);
+		})(window,document);
+
+		console.log(ChenJs);
+
+		ChenJs.ajax({
+			url: 'test.json',
+			data: {"id":"fda","test":"5151681"}
+		})
+
+		// 表单验证正则表达式封装
+		var strategys = {
+			isNotEmpty: function(str) {
+				return (str.length > 0 ? true : false);
+			},
+			isMobile: function(str) {
+				var reg = /^1[3|4|5|7|8|9]\d{9}$/;
+				return (reg.test(str) ? true : false);
+			},
+			isEmail: function(str) {
+				var reg = /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
+				return (reg.test(str) ? true : false);
+			},
+			isUserName: function(str) {
+				var reg = /^\w+$/;
+				return (reg.test(str) ? true : false);
+			},
+			// 英文和数字
+			isEngNum: function(str) {
+				var reg = /^[a-zA-Z0-9]+$/;
+				return (reg.test(str) ? true : false);
+			},
+			isNumber: function(str) {
+				return ((typeof str).toLowerCase() == 'number' ? true : false );
+			},
+			// 身份证
+			idCardVildate: function(str) {
+				var reg = /(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}[0-9Xx]$)/;
+				return (reg.test(str) ? true : false);
+			}
+		}
+	</script>
+
+</body>
+</html>
